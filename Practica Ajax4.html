@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!--Load the AJAX API-->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      // Cargue la API de visualización y el paquete corechart.
+      google.charts.load('current', {'packages':['corechart']});
+      // Establece una devolución de llamada para que se ejecute cuando se carga la API de visualización de Google.       
+      // Set a callback to run when the Google Visualization API is loaded.
+      google.charts.setOnLoadCallback(drawChart);
+      // La devolución de llamada que crea y llena una tabla de datos,
+      // crea una instancia del gráfico circular, pasa los datos y
+      // lo dibuja.
+      function drawChart(confirmados) {
+        // Create the data table.
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Topping');
+        data.addColumn('number', 'Trozos');
+        data.addRows(confirmados);
+        // Establecer opciones 
+        var options = {'title':'Contagiados en Arequipa',
+                       'width':400,
+                       'height':300};
+        // Instanciar y dibujar nuestro gráfico, pasando algunas opciones.               
+        var chart = new google.visualization.BarChart(document.getElementById('chart_div'));
+        chart.draw(data, options);
+      }
+      function loadDoc(){
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange= function(){
+        if(this.readyState ==4 && this.status==200){    
+          var confirmados=[];
+          var resp=JSON.parse(this.responseText);
+          //indice 3 de region arequipa
+          for(var i=0;i<resp[3].confirmed.length;i++){
+            var registro =[resp[3].confirmed[i].date,Number(resp[3].confirmed[i].value)];
+            confirmados.push(registro);
+            console.log(resp[3].confirmed[i].date);
+           console.log(resp[3].confirmed[i].value);
+             
+          }
+          drawChart(confirmados);
+          //document.getElementById("demo").innerHTML="procesando";
+        } 
+      }; 
+      xhttp.open("GET","covid_peru_complete.json",true);
+      xhttp.send();
+    } 
+    </script>
+  </head>
+
+  <body>
+    <div id="chart_div">
+      
+   
+    <button type="button" onclick="loadDoc()">Lista de regiones y numeros de contagiados</button>
+    <!--Div that will hold the pie chart-->
+     </div>
+  </body>
+</html>
