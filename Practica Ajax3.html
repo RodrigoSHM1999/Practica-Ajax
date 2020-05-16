@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+	<body>
+		<div id="demo">
+		<h2>Practica 1</h2>
+		<button type="button" onclick="loadDoc()">Lista de las 10 regiones</button>
+		</div>
+		<script> 
+		function loadDoc(){
+			var xhttp = new XMLHttpRequest();
+			xhttp.onreadystatechange= function(){
+				if(this.readyState ==4 && this.status==200){		
+					var data = JSON.parse(this.responseText);
+					var array = getArrayLastValue(data); 
+					array.sort(function(a,b) {return b.value - a.value});
+					console.log(array);
+					var html = "<style> table,th,td {border	:1px solid black;}</style>";
+					html += "<table style='width:100%' >\n";
+					for(var i=0;i<10;i++){
+						var regi =array[i].name;
+						var confir=array[i].value;
+						html+="<tr>\n";
+						html+="<th>"+ regi +"</th>"+"<th>"+confir+"</th>\n";
+						
+					}
+					html += "</tr>\n";	
+					html += "</table>\n";
+					document.getElementById("demo").innerHTML = html;
+				}	
+			}; 
+			xhttp.open("GET","covid_peru_complete.json",true);
+			xhttp.send();
+		}
+		function getArrayLastValue(data){
+			var array=[];
+			for(var i in data){
+				var regi=data[i].region;
+				var id=(data[i].confirmed.length)-1;
+				var confir=data[i].confirmed[id];
+				var obj= {
+					name : regi,
+					value : confir.value
+
+				};
+				array.push(obj);
+
+			};
+			return array;
+		}		
+		</script>
+	</body>
+</html>
