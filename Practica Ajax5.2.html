@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!--Load the AJAX API-->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      // Cargue la API de visualización y el paquete corechart.
+         google.charts.load('current', {'packages':['line']});
+      // Establece una devolución de llamada para que se ejecute cuando se carga la API de visualización de Google.       
+      // Set a callback to run when the Google Visualization API is loaded.
+        google.charts.setOnLoadCallback(drawChart);
+      // La devolución de llamada que crea y llena una tabla de datos,
+      // crea una instancia del gráfico circular, pasa los datos y
+      // lo dibuja.
+      //problema con llegada de arreglos(undefined)
+      function drawChart(confirmados,long,regi,len) {
+        // Create the data table.
+        var data = new google.visualization.arrayDataTable();
+        data.addColumn('string','Fechas'); 
+        data.addColumn('number','gaaa'); 
+        console.log(confirmados);
+        console.log(long);
+        console.log(regi);
+        console.log(len);
+        for(var i=0;i<len;i++){
+        data.addColumn('number',String(regi[i].region));
+
+        }
+        for(var i=0;i<long;i++){
+          data.addRows(confirmados[i]);
+        }
+        // Establecer opciones 
+        var options = {
+        chart: {
+          title: 'Box Office Earnings in First Two Weeks of Opening',
+          subtitle: 'in millions of dollars (USD)'
+        },
+        width: 900,
+        height: 500,
+        axes: {
+          x: {
+            0: {side: 'top'}
+          }
+        }
+        };
+        // Instanciar y dibujar nuestro gráfico, pasando algunas opciones.               
+        var chart = new google.charts.Line(document.getElementById('line_top_x'));
+        chart.draw(data, google.charts.Line.convertOptions(options));
+      }
+      function loadDoc(){
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange= function(){
+        if(this.readyState ==4 && this.status==200){    
+          var confirmados=[];
+          var resp=JSON.parse(this.responseText);
+          var days=resp[0].confirmed;
+          //primer for para el numero de dias
+          for(var i=0;i<days.length;i++){
+            //temp:acumula dias y value de las regiones
+            var DateAndRegis=[];
+            //creo el primer date del arreglo la fecha
+            DateAndRegis[0]=resp[0].confirmed[i].date;
+             //segundo for para el total de regiones
+            for(var j=0;j<resp.length;j++){
+              DateAndRegis[j+1]=Number(resp[j].confirmed[i].value);
+            }
+              confirmados[i]=DateAndRegis;
+             
+          }
+          var len=resp.length;
+          var long=confirmados.length;
+          drawChart(confirmados,long,resp,len);
+      
+        } 
+      }; 
+      xhttp.open("GET","covid_peru_complete.json",true);
+      xhttp.send();
+    } 
+    </script>
+  </head>
+
+  <body>
+    <div id="line_top_x"><br>
+      <h2>Comparacion de regiones</h2>
+    <button type="button" onclick="loadDoc()"> de contagiados</button>
+    <!--Div that will hold the pie chart-->
+     </div>
+  </body>
+</html>
